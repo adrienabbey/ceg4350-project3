@@ -208,35 +208,12 @@ void doCopy(Arg *a)
 }
 
 /*
- * Start of new functions for Project 3:
- */
-
-/// @brief Creates a new hard link between the given file and its new path name.
-/// Prints out the inode number if successful.  This will fail if:
-/// the original path name is a directory,
-/// the original path name does not exist,
-/// the new path name already exists,
-/// or the new path name is invalid.
-/// @param a The arguments given.  These arguments should be the `original path 
-/// name` and `new path name`.  The original path name MUST be a file (NOT a 
-/// directory).  The new path name can be `.`, creating a hard link from the 
-/// original path name to the current directory, using the same original file 
-/// name.
-void doLnHard(Arg *a)
-{
-}
-
-/*
- *End of new functions for Project 3.
- */
-
-/*
  * Start of new/modified functions for Project 2:
  */
 
 /// @brief Attempts to find the file with the given path.
 /// @param path Relative or absolute path, including the file name.
-/// @return Returns the inode of the directory, if found.
+/// @return Returns the inode of the file, if found.
 /// Returns 0 if nothing found.
 uint findFile(char *path)
 {
@@ -574,6 +551,63 @@ void doMv(Arg *a)
  * End of new/modified functions for Project 2.
  */
 
+/*
+ * Start of new functions for Project 3:
+ */
+
+// Hard links have the same inode value as the original, as they ARE the same
+// file.  Creating a hard link simply creates a new reference in a different
+// directory, which may or may not be the same file name.  Deleting a hard
+// linked file will not delete the original, but editing either file will also
+// modify the other, as they are the same file.  A hard linked file is only
+// truly deleted if all hard links to that file are deleted.  Hard links cannot
+// work with directories.
+
+// Soft links are different from hard links, as each soft link is a new file
+// that simply references to the original file's path (NOT inode!).  Deleting
+// the original file will NOT affect the soft link, which instead simply becomes
+// 'dangling', pointing to a non-existant location.  Soft links CAN be made to
+// directories.
+
+/// @brief Creates a new hard link between the given file and its new path name.
+/// Prints out the inode number if successful.  This will fail if:
+/// the original path name is a directory,
+/// the original path name does not exist,
+/// the new path name already exists,
+/// or the new path name is invalid.
+/// @param a The arguments given.  These arguments should be the `original path
+/// name` and `new path name`.  The original path name MUST be a file (NOT a
+/// directory).  The new path name can be `.`, creating a hard link from the
+/// original path name to the current directory, using the same original file
+/// name.
+void doLnHard(Arg *a)
+{
+  // Verify the original path name exists, and is not a directory:
+  uint originalFile = findFile((char *)a[0].s);
+  if (originalFile == 0)
+  {
+    printf("%s does not exist.", (char *)a[0].s);
+    return;
+  }
+  if (fv->inodes.getType(originalFile) != 1)
+  {
+    printf("%s is not a valid file.", (char *)a[0].s);
+    return;
+  }
+
+  // Verify the new path name does not exist, and is valid:
+  uint newFilePath = findFile((char *)a[1].s);
+  if (newFilePath > 0 && fv->inodes.getType(newFilePath) != 2)
+  {
+    printf("%s already exists.", (char *)a[1].s);
+    return;
+  }
+}
+
+/*
+ *End of new functions for Project 3.
+ */
+
 void doMountDF(Arg *a) // arg a ignored
 {
   TODO("doMountDF");
@@ -613,6 +647,7 @@ public:
     {"echo", "ssss", "", doEcho},
     {"inode", "u", "v", doInode},
     {"inode", "s", "v", doInodeStr},
+    {"ln", "ss", "v", doLnHard}, // Hard links require two path names
     {"ls", "", "v", doLsLong},
     {"ls", "s", "v", doLsLong}, // Allow ls to specify a path
     {"lslong", "", "v", doLsLong},
