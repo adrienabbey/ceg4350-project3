@@ -207,6 +207,33 @@ void doCopy(Arg *a)
   }
 }
 
+/*
+ * Start of new functions for Project 3:
+ */
+
+/// @brief Creates a new hard link between the given file and its new path name.
+/// Prints out the inode number if successful.  This will fail if:
+/// the original path name is a directory,
+/// the original path name does not exist,
+/// the new path name already exists,
+/// or the new path name is invalid.
+/// @param a The arguments given.  These arguments should be the `original path 
+/// name` and `new path name`.  The original path name MUST be a file (NOT a 
+/// directory).  The new path name can be `.`, creating a hard link from the 
+/// original path name to the current directory, using the same original file 
+/// name.
+void doLnHard(Arg *a)
+{
+}
+
+/*
+ *End of new functions for Project 3.
+ */
+
+/*
+ * Start of new/modified functions for Project 2:
+ */
+
 /// @brief Attempts to find the file with the given path.
 /// @param path Relative or absolute path, including the file name.
 /// @return Returns the inode of the directory, if found.
@@ -543,6 +570,10 @@ void doMv(Arg *a)
   }
 }
 
+/*
+ * End of new/modified functions for Project 2.
+ */
+
 void doMountDF(Arg *a) // arg a ignored
 {
   TODO("doMountDF");
@@ -700,7 +731,9 @@ void ourgets(char *buf)
     *p = 0;
 }
 
-/* The following are all custom functions I wrote for Project 1. */
+/*
+ * The following are all custom functions I wrote for Project 1.
+ */
 
 // Copy/paste of provided code that executes a local command, from main()
 //   method to reduce repetition:
@@ -1076,7 +1109,9 @@ void parseCommands(char *buf)
   }
 }
 
-/* End of my custom functions. */
+/*
+ * End of my custom functions.
+ */
 
 int main()
 {
