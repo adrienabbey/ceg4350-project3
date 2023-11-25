@@ -5,6 +5,7 @@
 
 #include "fs33types.hpp"
 
+#define xLinks (fv->superBlock.iHeight - 3)    // Defines the location in the superBlock which defines the iNode link count (NEW)
 #define xType (fv->superBlock.iHeight - 2)     // Defines the location in the superBlock which defines the iNode type
 #define xFileSize (fv->superBlock.iHeight - 1) // Defines the location in the SuperBlock which records the file size
 
@@ -24,11 +25,11 @@ uint Inodes::create(FileVolume *pfv, uint nBegin, uint nInodes, uint iHeight)
 
   // *INDENT-OFF* // Decide how many indirect entries to have
   uint iIndirect = 0;
-  if (iHeight > 4)
+  if (iHeight > 5) // Increased all of these to make room for link counts
     iIndirect = 1;
-  if (iHeight > 5)
-    iIndirect = 2;
   if (iHeight > 6)
+    iIndirect = 2;
+  if (iHeight > 7)
     iIndirect = 3;
   // *INDENT-ON*
 
@@ -41,7 +42,7 @@ uint Inodes::create(FileVolume *pfv, uint nBegin, uint nInodes, uint iHeight)
   fv->superBlock.nBlocksOfInodes =
       (nInodes * iWidth * iHeight + bsz - 1) / bsz;
   fv->superBlock.inodesPerBlock = bsz / iWidth / iHeight;
-  fv->superBlock.iDirect = iHeight - 1 - 1 - iIndirect; // see xType, xFileSize
+  fv->superBlock.iDirect = iHeight - 1 - 1 - 1 - iIndirect; // see xType, xFileSize, xLinks
 
   // set all inodes to zero, and mark blocks occupied by inodes as in-use
   uintbuffer = (uint *)new byte[bsz]; // inodes from one block
@@ -150,6 +151,23 @@ uint Inodes::getType(uint in)
 uint Inodes::setType(uint in, uint tp)
 {
   return setEntry(in, xType, tp);
+}
+
+/// @brief Get the number of hard/soft links to the given file.
+/// @param in Inode number for the file being checked.
+/// @return Returns the number of links for the given file.
+uint Inodes::getLinks(uint in)
+{
+  return getEntry(in, xLinks);
+}
+
+/// @brief Sets the number of hard/soft links to the given file.
+/// @param in The inode number of the file being modified.
+/// @param value The new number of hard/soft links to the given file.
+/// @return Returns new number of links to the given file.
+uint Inodes::setLinks(uint in, uint value)
+{
+  return setEntry(in, xLinks, value);
 }
 
 /* pre:: 0 < in < nInodes ;; post:: Return the size of file whose

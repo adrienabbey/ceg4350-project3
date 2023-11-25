@@ -145,6 +145,8 @@ public:
   uint incFileSize(uint in, int increment);
   uint getType(uint in);
   uint setType(uint in, uint value);
+  uint getLinks(uint in);
+  uint setLinks(uint in, uint value);
   uint show(uint in);
 
 private:
