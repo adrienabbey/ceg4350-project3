@@ -1,0 +1,263 @@
+<html><head>
+<meta http-equiv="content-type" content="text/html; charset=windows-1252">
+	<title>CEG4350/CEG5350 - Operating Systems</title>
+<script src="4350P3_files/page-script.js"></script></head>
+<body bgcolor="#FFFFFF" link="#0000FF" vlink="#800080">
+<font face="Helvetica,Arial,sans-serif">
+<table border="0" width="640" cellspacing="0">
+<tbody><tr><td width="100%" bgcolor="#006f51">&nbsp;</td></tr>
+</tbody></table>
+<table border="0" width="640" cellspacing="0">
+<tbody><tr><td width="100%" bgcolor="#e7a614">&nbsp;</td></tr>
+</tbody></table>
+<p>
+<table border="0" cellspacing="0" cellpadding="3" width="640">
+<tbody><tr>
+	<td><a href="http://www.wright.edu/"><img style="border-style: none" src="4350P3_files/logo_wsu.jpg" width="100" height="55" alt="WSU 2-color logo"></a>
+</td>
+<td width="440">
+<center>
+<p><b><font size="+1" color="#006f51" face="Helvetica,Arial,sans-serif">Welcome to
+</font></b></p><p><b><font size="+1" color="#006f51" face="Helvetica,Arial,sans-serif"><i>CEG4350/CEG5350</i> - Operating Systems
+</font></b></p></center>
+</td>
+<td><a href="http://avida.cs.wright.edu/"><img style="border-style: none" src="4350P3_files/avida-logo-3D-white.png" width="70" height="58" alt="AVIDA"></a>
+</td></tr></tbody></table>
+</p><p>
+<table border="0" width="640" cellspacing="0">
+<tbody><tr><td width="100%" bgcolor="#e7a614">&nbsp;</td></tr>
+</tbody></table>
+</p><p>
+<font face="Helvetica,Arial,sans-serif">
+
+<table border="0" cellpadding="10" cellspacing="10" width="100%" height="169">
+  <tbody><tr>
+    <td width="67%" height="139">
+    <table border="0" width="100%">
+      <tbody><tr>
+        <td width="100%">
+        <h3>P1: Links and Medium Size Files</h3>
+        </td>
+      </tr>
+      <tr>
+        <td width="100%">
+        <h3>
+            <b><a href="http://avida.cs.wright.edu/courses/CEG4350/">CEG 
+        4350/5350: Operating Systems</a></b></h3>
+        </td>
+      </tr>
+      </tbody></table>
+    </td>
+  </tr>
+</tbody></table>
+<table bgcolor="#006f51" border="0" cellpadding="0" cellspacing="0" width="100%">
+  <tbody><tr>
+    <td>&nbsp;</td>
+    <td align="right">&nbsp;</td>
+  </tr>
+</tbody></table>
+</font></p><p><font face="Helvetica,Arial,sans-serif">This is Part 1 of 
+the project for this term.&nbsp; Our goals in this part of the project 
+is&nbsp; to (i) add the ability to store
+and retrieve <i>medium</i>&nbsp; files, and (ii) to add hard and soft 
+links in a file volume
+built on the simulated disk of P0.&nbsp;Large files are not necessary in
+ this part.&nbsp; This part deals with only one file volume at a 
+time.&nbsp; No mounting is 
+    involved.</font></p><p><font face="Helvetica,Arial,sans-serif">You are expected to build 
+on your own work of P0.&nbsp;&nbsp; Do not use source code files of others or even 
+those of mine but from prior terms.&nbsp; The <a href="https://avida.cs.wright.edu/courses/CEG4350/Projects/4350projects.html">Project 
+Expectations</a> are all still applicable.</font></p><p><font face="Helvetica,Arial,sans-serif"><b>Be Considerate. </b>Do make sure that you are not using up too much space (say 
+&gt; 10 MB) in your home directory.&nbsp; The following will show your disk space usage:&nbsp; <code>du -s ~</code></font></p><font face="Helvetica,Arial,sans-serif">
+<h2>1. Hard and Soft Links</h2>
+<p>From the lectures, you should know the definitions of hard and soft links. Resolve any missing detail in the semantics of links 
+so that it matches with that in Unix. (E.g., if you cd via a soft-link to directory D, where should you be after a cd .. ?)</p>
+<ol>
+       <li>The i-nodes now need to have a<i> link count</i> field.</li>
+       <li>The i-node types are now: ordinary-file, directory, soft-link.</li>
+</ol>
+<p>DO's and DONT's:</p>
+<ol>
+       <li>Do not permit hard links to directories.</li>
+       <li>Do permit soft links to directories.</li>
+</ol>
+<h2>2. Medium Size Files</h2>
+<p>We define <i>medium</i>&nbsp; files as those using an i-node's (i) direct block
+number entries, <i>and</i> (ii) requiring single-indirect blocks.</p><p>Large files are those using an i-node's (i) direct block
+number entries, <i>and</i> (ii) requiring single-indirect blocks, <i>and</i> (iii) requiring double-indirect blocks&nbsp; For 
+bonus points, implement large files also.</p>
+<h2>3. <a name="A Simple Shell">A Simple Test Session</a></h2>
+<p>Implement the commands described below. All the commands of the project so far should be working as they did before, but <i>now</i> 
+also should work for links and medium files;&nbsp; <i>so only</i> the additional elements are described below.&nbsp;&nbsp;&nbsp; 
+In your testscript, demonstrate each new command and that the old commands work with links and medium files. Note that the 
+addition of medium files does not bring in any "new" commands.</p>
+<dl>
+  <dt><code><strong>fs33% mkfs disknm </strong></code></dt>
+  <dd>creates an initially empty file volume, as before, on the simulated
+disk named <code>disknm.dsk</code>.&nbsp; Note that the i-node height <i>now</i> includes not only the <code>fileSize</code>
+  field, but also the link count.
+</dd>
+
+  <dt><strong><tt>fs33% ln opnm npnm</tt></strong></dt>
+  <dd>creates <code>npnm</code>&nbsp; as a new <i>hard</i> link to&nbsp; <code>opnm</code>, and prints its i-node number.&nbsp; It creates 
+  nothing new and returns 0 in the following "abnormal" cases: a) <code>opnm</code> is a directory; b) no ordinary file with <code>
+  opnm</code> as its path name exists; c)&nbsp; <code>npnm</code> already exists; d) <code>npnm</code> is an invalid pathname.</dd>
+  <dt><strong><tt>fs33% ln opnm .</tt></strong></dt>
+  <dd>creates a hard link named the same as the leaf name of <code>opnm</code>
+ in the current directory and prints its i-node 
+  number.&nbsp; Abnormal cases similar to the above apply.&nbsp; For 
+bonus points, add the flexibility that this command may omit the dot.</dd>
+  <dt><tt><strong>fs33% </strong></tt><strong><tt>ln -s opnm npnm</tt></strong></dt>
+  <dd>creates <code>npnm</code> as a <i>soft</i> link to <code>opnm</code>, and prints its i-node number.&nbsp; It creates nothing new 
+  and returns 0 in the following "abnormal" cases: a) <code>opnm</code> does not exist; b) <code>npnm</code> already exists; c)
+  <code>npnm</code> is an invalid pathname.</dd>
+  <dt><strong><tt>fs33% rm pnm</tt></strong></dt>
+  <dd>removes the pathname <code>pnm</code>, which may or may be a link, and prints the resulting link count.</dd>
+</dl>
+<h2>4. Turn In</h2>
+<p> All projects need to be submitted via <a href="https://pilot.wright.edu/">
+	Pilot</a>.
+</p><hr size="4">
+<table border="0" cellpadding="10" cellspacing="10" width="100%">
+  <tbody><tr>
+    <td width="67%">
+    <table border="0" width="100%">
+      <tbody><tr>
+        <td width="100%">
+        <h3><a name="Grading Sheet for Part 1">Grading Sheet for&nbsp;</a>P1:&nbsp; Links and Medium Size Files<br>
+            <a href="http://avida.cs.wright.edu/courses/CEG4350/">CEG 4350/5350: Operating Systems</a></h3>
+        </td>
+      </tr>
+      <tr>
+        <td width="100%">Instructor = 
+<a href="mailto:thomas.wischgoll@wright.edu?subject=CEG4350"> Thomas Wischgoll</a>
+        </td>
+      </tr>
+    </tbody></table>
+    </td>
+  </tr>
+      <tr>
+        <td colspan="2">Bonus points are awarded in recognition of good work and extra work, 
+        in addition to the max possible points.&nbsp; Quality is subjectively 
+        judged.&nbsp; Merely turning in a file will not receive full score.&nbsp; 
+        Some items have a cascading effect.&nbsp; Bonus points are extra credit 
+        points.</td>
+      </tr>
+</tbody></table>
+<table width="100%" border="1">
+  <tbody><tr>
+    <td><font size="4" width="80%">Item description</font></td>
+    <td align="right"><font size="4" width="5%">Max</font></td>
+    <td align="right"><font size="4" width="10%">Points</font></td>
+  </tr>
+  <tr>
+    <td><code><i>Your</i> testscript.txt </code>should be 
+    designed so that all the P0-functionality<span style="font-style: italic;"> 
+    in the context of the new links and medium sized files</span> 
+    can be demonstrated, including robustness.<i> </i></td>
+    <td align="right">5</td>
+    <td align="right">&nbsp;</td>
+  </tr>
+  <tr>
+    <td>Your P1 successfully navigates your own <code>testscript.txt</code>.
+    (<i> If</i> yours is too simple, we may run it through our script that you 
+    will get to see only after the due date.)</td>
+    <td align="right">5</td>
+    <td align="right">&nbsp;</td>
+  </tr>
+  <tr>
+  </tr><tr>
+    <td><code>ln opnm npnm</code></td>
+    <td align="right">5</td>
+    <td align="right">&nbsp;</td>
+  </tr>
+  <tr>
+    <td><code>ln -s opnm npnm</code></td>
+    <td align="right">10</td>
+    <td align="right">&nbsp;</td>
+  </tr>
+  <tr>
+    <td><code>cd link-to-dir</code></td>
+    <td align="right">10</td>
+    <td align="right">&nbsp;</td>
+  </tr>
+  <tr>
+    <td><code>cd ..</code> after the above</td>
+    <td align="right">5</td>
+    <td align="right">&nbsp;</td>
+  </tr>
+  <tr>
+    <td><code>cp hard-link-pnm pnm</code></td>
+    <td align="right">5</td>
+    <td align="right">&nbsp;</td>
+  </tr>
+  <tr>
+    <td><code>cp soft-link-pnm pnm</code></td>
+    <td align="right">10</td>
+    <td align="right">&nbsp;</td>
+  </tr>
+  <tr>
+    <td height="19"><code>rm hard-or-soft-link-pnm</code></td>
+    <td align="right" height="19">10</td>
+    <td align="right" height="19">&nbsp;</td>
+  </tr>
+  <tr>
+    <td><code>mv soft-link-pnm pnm</code></td>
+    <td align="right">10</td>
+    <td align="right">&nbsp;</td>
+  </tr>
+  <tr>
+    <td><code>mv hard-link-pnm pnm</code></td>
+    <td align="right">5</td>
+    <td align="right">&nbsp;</td>
+  </tr>
+  <tr>
+    <td><code>inode</code> updated to show all i-node fields</td>
+    <td align="right">10</td>
+    <td align="right">&nbsp;</td>
+  </tr>
+  <tr>
+    <td>Medium files</td>
+    <td align="right">10</td>
+    <td align="right">&nbsp;</td>
+  </tr>
+  <tr>
+    <td><code>ln opnm</code> no-dot (bonus points)</td>
+    <td align="right">B10</td>
+    <td align="right">&nbsp;</td>
+  </tr>
+  <tr>
+    <td>Large files (bonus points)</td>
+    <td align="right">B50</td>
+    <td align="right">&nbsp;</td>
+  </tr>
+  <tr>
+    <td>Files were not submitted using <code>pilot</code> = minus 10 
+    points</td>
+    <td align="right">-10</td>
+    <td align="right">&nbsp;</td>
+  </tr>
+  <tr>
+    <td><b>Total</b></td>
+    <td align="right">100</td>
+    <td align="right">&nbsp;</td>
+  </tr>
+</tbody></table>
+<table cellspacing="0" cellpadding="0" width="100%" bgcolor="#006f51" border="0">
+  <tbody><tr>
+    <td align="right">&nbsp;</td>
+  </tr>
+</tbody></table>
+<table cellspacing="0" cellpadding="0" width="100%" border="0">
+  <tbody><tr>
+    <td width="71%">Copyright ©
+    2020 <a href="mailto:pmateti@wright.edu?subject=CEG4350">pmateti@wright.edu</a>, <a href="mailto:thomas.wischgoll@wright.edu?subject=CEG4350">thomas.wischgoll@wright.edu</a></td>
+    <td align="right" width="29%"><br>
+    </td>
+  </tr>
+</tbody></table>
+
+
+
+
+</font></font></body></html>
