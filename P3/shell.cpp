@@ -270,6 +270,80 @@ uint findFile(char *path)
   return workingDirectory->nInode;
 }
 
+/// @brief Given a path string, find the final directory for that given path.
+/// This does NOT validate the tail end of the given path.  This is useful to
+/// find the parent directory when attempting to create a new file given a
+/// relative or absolute path name.
+/// @param path The path name string to search for.
+/// @return Returns the inode of the parent directory for the given path, if it
+/// exists.  Returns 0 if the parent directory does not exist.
+uint findFilePath(char *path)
+{
+  // Create a working directory that can change without mangling wd:
+  Directory *workingDirectory;
+
+  // Check if relative or absolute path:
+  if (path[0] == '/')
+  {
+    // Absolute path.  Find the directory.
+    // Start at the root directory:
+    workingDirectory = new Directory(fv, fv->root->nInode, fv->root->nInode);
+  }
+  else
+  {
+    // Relative path.  Find the directory.
+    // Start in the current working directory:
+    workingDirectory = new Directory(fv, wd->nInode, fv->root->nInode);
+  }
+
+  // Start splitting the path into usable parts:
+  char *pathPart = strtok(path, "/");
+
+  // Search through each path part, looking for valid directories:
+  while (pathPart != NULL)
+  {
+    // Check if the next path part exists:
+    uint nextInode = workingDirectory->iNumberOf((byte *)pathPart);
+    if (nextInode != 0)
+    {
+      // If the next path part is a directory:
+      if (fv->inodes.getType(nextInode) == 2)
+      {
+        // Directory exists, switch to it:
+        workingDirectory = new Directory(fv, nextInode, workingDirectory->iNumberOf((byte *)".."));
+      }
+      else
+      {
+        // It's a file.  Return it's parent directory inode:
+        return workingDirectory->nInode;
+      }
+
+      // Move to the next path part:
+      pathPart = strtok(NULL, "/");
+    }
+    else
+    {
+      // The path was not found.
+
+      // If there are more path parts:
+      pathPart = strtok(NULL, "/");
+      if (pathPart != NULL)
+      {
+        // Invalid path, return 0:
+        return 0;
+      }
+      else
+      {
+        // Valid path (in this context).  Return the working directory:
+        return workingDirectory->nInode;
+      }
+    }
+  }
+
+  // Return the inode of the directory found:
+  return workingDirectory->nInode;
+}
+
 /// @brief Print a listing of the current local directory's contents, much like
 /// `ls -lisa` would.
 /// @param a Arguments, if any.  These are likely ignored.
@@ -363,6 +437,19 @@ void doRm(Arg *a)
   else
   {
     // Delete the given file in the current working directory:
+    // If the given file has any links:
+    uint delInode = wd->iNumberOf((byte *)a[0].s);
+    uint delLinks = fv->inodes.getLinks(delInode);
+    if (fv->inodes.getLinks(delInode) > 0)
+    {
+      // Delete the file reference without freeing the inode:
+      fv->inodes.setLinks(delInode, delLinks - 1);
+      uint in = wd->deleteFile((byte *)a[0].s, 0);
+      printf("The file has %d hard links remaining.\n", fv->inodes.getLinks(wd->iNumberOf((byte *)a[0].s)));
+      printf("rm %s returns %d.\n", a[0].s, in);
+      return;
+    }
+    // Otherwise just delete the file, freeing the nodes:
     uint in = wd->deleteFile((byte *)a[0].s, 1);
     printf("rm %s returns %d.\n", a[0].s, in);
   }
@@ -557,11 +644,12 @@ void doMv(Arg *a)
 
 // Hard links have the same inode value as the original, as they ARE the same
 // file.  Creating a hard link simply creates a new reference in a different
-// directory, which may or may not be the same file name.  Deleting a hard
+// directory, which may or may not be the same file name.  Deleting a new hard
 // linked file will not delete the original, but editing either file will also
 // modify the other, as they are the same file.  A hard linked file is only
 // truly deleted if all hard links to that file are deleted.  Hard links cannot
-// work with directories.
+// work with directories.  In short, creating a hard link simply creates a new
+// file reference in a directory to an existing inode.
 
 // Soft links are different from hard links, as each soft link is a new file
 // that simply references to the original file's path (NOT inode!).  Deleting
@@ -586,12 +674,13 @@ void doLnHard(Arg *a)
   uint originalFile = findFile((char *)a[0].s);
   if (originalFile == 0)
   {
-    printf("%s does not exist.", (char *)a[0].s);
+    printf("%s does not exist.\n", (char *)a[0].s);
     return;
   }
   if (fv->inodes.getType(originalFile) != 1)
   {
-    printf("%s is not a valid file.", (char *)a[0].s);
+    // Note: I'm assuming we don't want hard links to soft link files.
+    printf("%s is not a valid file.\n", (char *)a[0].s);
     return;
   }
 
@@ -599,9 +688,18 @@ void doLnHard(Arg *a)
   uint newFilePath = findFile((char *)a[1].s);
   if (newFilePath > 0 && fv->inodes.getType(newFilePath) != 2)
   {
-    printf("%s already exists.", (char *)a[1].s);
+    // Note: if the destination is a directory, I'm going to presume that we
+    // want a new hard link in that directory, using the original file name.
+    printf("%s already exists.\n", (char *)a[1].s);
     return;
   }
+
+  // The given arguments are valid.  Create the hard link.
+
+  // FIXME: For testing purposes, let's assume we're given a simple file name:
+  wd->addLeafName((byte *)a[1].s, originalFile);
+  fv->inodes.setLinks(originalFile, fv->inodes.getLinks(originalFile) + 1);
+  printf("%s now has %d links.\n", (char *)a[1].s, fv->inodes.getLinks(originalFile));
 }
 
 /*
