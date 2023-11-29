@@ -2,8 +2,8 @@
  * shell.C -- CEG433 File Sys Project shell
  * pmateti@wright.edu
  *
- * Modified for Project 2 of CEG-4350
- * by Adrien Abbey, Sept. 2023
+ * Modified for Project 3 of CEG-4350
+ * by Adrien Abbey, Nov. 2023
  */
 
 #include "fs33types.hpp"
@@ -686,18 +686,23 @@ void doLnHard(Arg *a)
 
   // Verify the new path name does not exist, and is valid:
   uint newFilePath = findFile((char *)a[1].s);
-  if (newFilePath > 0 && fv->inodes.getType(newFilePath) != 2)
+  if (newFilePath > 0)
   {
-    // Note: if the destination is a directory, I'm going to presume that we
-    // want a new hard link in that directory, using the original file name.
     printf("%s already exists.\n", (char *)a[1].s);
     return;
   }
 
-  // The given arguments are valid.  Create the hard link.
+  // Verify that the destination path points to a valid directory:
+  uint newParentDir = findFilePath((char *)a[1].s);
+  if (newParentDir == 0)
+  {
+    printf("%s\n", "The destination directory does not exist.");
+    return;
+  }
 
-  // FIXME: For testing purposes, let's assume we're given a simple file name:
-  wd->addLeafName((byte *)a[1].s, originalFile);
+  // The given arguments are valid.  Create the hard link.
+  Directory *destinationDirectory = new Directory(fv, newParentDir, 1);
+  destinationDirectory->addLeafName((byte *)a[1].s, originalFile);
   fv->inodes.setLinks(originalFile, fv->inodes.getLinks(originalFile) + 1);
   printf("%s now has %d links.\n", (char *)a[1].s, fv->inodes.getLinks(originalFile));
 }
