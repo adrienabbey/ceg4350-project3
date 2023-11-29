@@ -344,6 +344,32 @@ uint findFilePath(char *path)
   return workingDirectory->nInode;
 }
 
+/// @brief Parses a path name and returns the file name at the end.  This does
+/// NOT validate whether the path name is valid.
+/// @param path The file path to parse.
+/// @return Returns the file name included in the path name string.  Returns
+/// NULL if no file name is found.
+char *findFileName(char *path)
+{
+  // If the path string ends with a slash, it's not a file:
+  if (path[strlen(path) - 1] == '/')
+  {
+    return NULL;
+  }
+  else
+  {
+    // Find the file name:
+    char *fileName;
+    char *pathPart = strtok(path, "/");
+    while (pathPart != NULL)
+    {
+      fileName = pathPart;
+      pathPart = strtok(NULL, "/");
+    }
+    return fileName;
+  }
+}
+
 /// @brief Print a listing of the current local directory's contents, much like
 /// `ls -lisa` would.
 /// @param a Arguments, if any.  These are likely ignored.
@@ -700,11 +726,19 @@ void doLnHard(Arg *a)
     return;
   }
 
+  // Verify that the destination path points to a valid file name:
+  char *destinationFileName = findFileName((char *)a[1].s);
+  if (destinationFileName == NULL)
+  {
+    printf("%s\n", "Invalid destination file name.");
+    return;
+  }
+
   // The given arguments are valid.  Create the hard link.
   Directory *destinationDirectory = new Directory(fv, newParentDir, 1);
-  destinationDirectory->addLeafName((byte *)a[1].s, originalFile);
+  destinationDirectory->addLeafName((byte *)destinationFileName, originalFile);
   fv->inodes.setLinks(originalFile, fv->inodes.getLinks(originalFile) + 1);
-  printf("%s now has %d links.\n", (char *)a[1].s, fv->inodes.getLinks(originalFile));
+  printf("%s now has %d links.\n", (char *)a[0].s, fv->inodes.getLinks(originalFile));
 }
 
 /*
