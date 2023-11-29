@@ -4,6 +4,7 @@ cp @smallFile.txt smallFile.txt
 ln smallFile.txt hardLink1
 ls
 mkdir testDir
+ln /smallFile.txt /testDir/hardLink2/
 ln /smallFile.txt /testDir/hardLink2
 ls /testDir/
 quit
