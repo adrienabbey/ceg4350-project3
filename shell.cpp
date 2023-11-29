@@ -235,7 +235,9 @@ uint findFile(char *path)
   }
 
   // Start splitting the path into usable parts:
+  std::cout << "  Path string before strtok: " << path << std::endl;
   char *pathPart = strtok(path, "/");
+  std::cout << "  Path string after strtok: " << path << std::endl;
 
   // Search through each path part, looking for valid directories:
   while (pathPart != NULL)
@@ -352,21 +354,28 @@ uint findFilePath(char *path)
 char *findFileName(char *path)
 {
   // If the path string ends with a slash, it's not a file:
+  std::cout << "  Path: " << path << std::endl;
+  std::cout << "  Path length: " << strlen(path) << std::endl;
+  std::cout << "  Terminal character: " << path[strlen(path) - 1] << std::endl;
   if (path[strlen(path) - 1] == '/')
   {
+    std::cout << "  ERROR: Not a file path." << std::endl;
     return NULL;
   }
   else
   {
     // Find the file name:
-    char *fileName;
+    std::string fileName;
     char *pathPart = strtok(path, "/");
     while (pathPart != NULL)
     {
       fileName = pathPart;
+      std::cout << "  File name: " << fileName << std::endl;
       pathPart = strtok(NULL, "/");
     }
-    return fileName;
+    char *returnStr = (char *)fileName.c_str();
+    std::cout << "  Return String: " << returnStr << std::endl;
+    return returnStr;
   }
 }
 
@@ -696,6 +705,9 @@ void doMv(Arg *a)
 /// name.
 void doLnHard(Arg *a)
 {
+  std::cout << "  Arguments: " << a[0].s << ", "
+            << a[1].s << std::endl;
+
   // Verify the original path name exists, and is not a directory:
   uint originalFile = findFile((char *)a[0].s);
   if (originalFile == 0)
@@ -711,6 +723,7 @@ void doLnHard(Arg *a)
   }
 
   // Verify the new path name does not exist, and is valid:
+  std::cout << "  Find file arguments: " << a[1].s << std::endl;
   uint newFilePath = findFile((char *)a[1].s);
   if (newFilePath > 0)
   {
@@ -719,6 +732,7 @@ void doLnHard(Arg *a)
   }
 
   // Verify that the destination path points to a valid directory:
+  std::cout << "  Find file path arguments: " << a[1].s << std::endl;
   uint newParentDir = findFilePath((char *)a[1].s);
   if (newParentDir == 0)
   {
@@ -727,7 +741,9 @@ void doLnHard(Arg *a)
   }
 
   // Verify that the destination path points to a valid file name:
+  std::cout << "  Find file name arguments: " << a[1].s << std::endl;
   char *destinationFileName = findFileName((char *)a[1].s);
+  std::cout << "  Returned file name: " << destinationFileName << std::endl;
   if (destinationFileName == NULL)
   {
     printf("%s\n", "Invalid destination file name.");
