@@ -235,9 +235,8 @@ uint findFile(char *path)
   }
 
   // Start splitting the path into usable parts:
-  std::cout << "  Path string before strtok: " << path << std::endl;
+  // NOTE: strtok WILL mangle inputs.
   char *pathPart = strtok(path, "/");
-  std::cout << "  Path string after strtok: " << path << std::endl;
 
   // Search through each path part, looking for valid directories:
   while (pathPart != NULL)
