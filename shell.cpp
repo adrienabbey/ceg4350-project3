@@ -220,8 +220,13 @@ uint findFile(char *path)
   // Create a working directory that can change without mangling wd:
   Directory *workingDirectory;
 
+  // strtok mangles the input string, which is suddenly very bad.
+  // To avoid this, do a deep copy the char path:
+  char *pathStr =  "";
+  strcpy(pathStr, path);
+
   // Check if relative or absolute path:
-  if (path[0] == '/')
+  if (pathStr[0] == '/')
   {
     // Absolute path.  Find the directory.
     // Start at the root directory:
@@ -236,7 +241,7 @@ uint findFile(char *path)
 
   // Start splitting the path into usable parts:
   // NOTE: strtok WILL mangle inputs.
-  char *pathPart = strtok(path, "/");
+  char *pathPart = strtok(pathStr, "/");
 
   // Search through each path part, looking for valid directories:
   while (pathPart != NULL)
@@ -283,8 +288,12 @@ uint findFilePath(char *path)
   // Create a working directory that can change without mangling wd:
   Directory *workingDirectory;
 
+  // Deep copy the path string:
+  char *pathStr = "";
+  strcpy(pathStr, path);
+
   // Check if relative or absolute path:
-  if (path[0] == '/')
+  if (pathStr[0] == '/')
   {
     // Absolute path.  Find the directory.
     // Start at the root directory:
@@ -298,7 +307,7 @@ uint findFilePath(char *path)
   }
 
   // Start splitting the path into usable parts:
-  char *pathPart = strtok(path, "/");
+  char *pathPart = strtok(pathStr, "/");
 
   // Search through each path part, looking for valid directories:
   while (pathPart != NULL)
@@ -352,11 +361,15 @@ uint findFilePath(char *path)
 /// NULL if no file name is found.
 char *findFileName(char *path)
 {
+  // Deep copy the path string:
+  char* pathStr = "";
+  strcpy(pathStr, path);
+
   // If the path string ends with a slash, it's not a file:
   std::cout << "  Path: " << path << std::endl;
-  std::cout << "  Path length: " << strlen(path) << std::endl;
-  std::cout << "  Terminal character: " << path[strlen(path) - 1] << std::endl;
-  if (path[strlen(path) - 1] == '/')
+  std::cout << "  Path length: " << strlen(pathStr) << std::endl;
+  std::cout << "  Terminal character: " << path[strlen(pathStr) - 1] << std::endl;
+  if (pathStr[strlen(pathStr) - 1] == '/')
   {
     std::cout << "  ERROR: Not a file path." << std::endl;
     return NULL;
@@ -365,7 +378,7 @@ char *findFileName(char *path)
   {
     // Find the file name:
     std::string fileName;
-    char *pathPart = strtok(path, "/");
+    char *pathPart = strtok(pathStr, "/");
     while (pathPart != NULL)
     {
       fileName = pathPart;
