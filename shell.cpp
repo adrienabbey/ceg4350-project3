@@ -222,7 +222,7 @@ uint findFile(char *path)
 
   // strtok mangles the input string, which is suddenly very bad.
   // To avoid this, do a deep copy the char path:
-  char *pathStr =  "";
+  char pathStr[BUFSIZ];
   strcpy(pathStr, path);
 
   // Check if relative or absolute path:
@@ -289,7 +289,7 @@ uint findFilePath(char *path)
   Directory *workingDirectory;
 
   // Deep copy the path string:
-  char *pathStr = "";
+  char pathStr[BUFSIZ];
   strcpy(pathStr, path);
 
   // Check if relative or absolute path:
@@ -362,7 +362,7 @@ uint findFilePath(char *path)
 char *findFileName(char *path)
 {
   // Deep copy the path string:
-  char* pathStr = "";
+  char pathStr[BUFSIZ];
   strcpy(pathStr, path);
 
   // If the path string ends with a slash, it's not a file:
