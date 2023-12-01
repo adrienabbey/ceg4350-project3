@@ -724,12 +724,8 @@ void doLnHard(Arg *a)
     printf("%s is a directory.\n", (char *)a[0].s);
     return;
   }
-  if (fv->inodes.getType(originalFile) != 1)
-  {
-    // Note: I'm assuming we don't want hard links to soft link files.
-    printf("%s is not a valid file.\n", (char *)a[0].s);
-    return;
-  }
+
+  // NOTE: Hard links to soft links are VALID!
 
   // Verify the new path name does not exist, and is valid:
   uint newFilePath = findFile((char *)a[1].s);
