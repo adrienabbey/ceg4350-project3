@@ -38,7 +38,7 @@ Implement the commands described below.  This builds upon how commands worked be
 ## Grading Rubric
 - [ ] `testscript.txt` is designed to demonstrate and test all the functionality of the new links and medium sized files (5 pts)
 - [ ] `testscript.txt` successfully navigates as expected (5 pts)
-- [ ] `ln opnm npnm` (5 pts)
+- [x] `ln opnm npnm` (5 pts)
 - [ ] `ln -s opnm npnm` (10 pts)
 - [ ] `cd link-to-dir` (10 pts)
 - [ ] `cd ..` after the above (5 pts)
@@ -49,5 +49,5 @@ Implement the commands described below.  This builds upon how commands worked be
 - [ ] `mv hard-link-pnm pnm` (5 pts)
 - [ ] `inode` updated to show all inode fields (10 pts)
 - [ ] Medium files implemented (10 pts)
-- [ ] `ln opnm` no-dot (10 bonus pts)
+- [x] `ln opnm` no-dot (10 bonus pts)
 - [ ] Large files implemented (50 bonus points)
