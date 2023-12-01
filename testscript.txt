@@ -9,7 +9,11 @@ ln /smallFile.txt /testDir/directoryFail/
 ln fakeFile fakeDestination
 ln /smallFile.txt /testDir/hardLink2
 ls /testDir/
+ln /testDir/hardLink2 .
 ln /testDir/ /linkedDir/
 ln /smallFile.txt /fakeDir/shouldFail.txt
+ls
+cd testDir
+ln /hardLink1 .
 ls
 quit
