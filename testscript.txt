@@ -3,10 +3,13 @@ mkfs D2
 cp @smallFile.txt smallFile.txt
 ln smallFile.txt hardLink1
 ls
+ln smallFile.txt hardLink1
 mkdir testDir
-ln /smallFile.txt /testDir/hardLink2/
+ln /smallFile.txt /testDir/directoryFail/
+ln fakeFile fakeDestination
 ln /smallFile.txt /testDir/hardLink2
 ls /testDir/
 ln /testDir/ /linkedDir/
+ln /smallFile.txt /fakeDir/shouldFail.txt
 ls
 quit
