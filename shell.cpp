@@ -366,12 +366,8 @@ char *findFileName(char *path)
   strcpy(pathStr, path);
 
   // If the path string ends with a slash, it's not a file:
-  std::cout << "  Path: " << path << std::endl;
-  std::cout << "  Path length: " << strlen(pathStr) << std::endl;
-  std::cout << "  Terminal character: " << path[strlen(pathStr) - 1] << std::endl;
   if (pathStr[strlen(pathStr) - 1] == '/')
   {
-    std::cout << "  ERROR: Not a file path." << std::endl;
     return NULL;
   }
   else
@@ -382,11 +378,9 @@ char *findFileName(char *path)
     while (pathPart != NULL)
     {
       fileName = pathPart;
-      std::cout << "  File name: " << fileName << std::endl;
       pathPart = strtok(NULL, "/");
     }
     char *returnStr = (char *)fileName.c_str();
-    std::cout << "  Return String: " << returnStr << std::endl;
     return returnStr;
   }
 }
@@ -717,14 +711,17 @@ void doMv(Arg *a)
 /// name.
 void doLnHard(Arg *a)
 {
-  std::cout << "  Arguments: " << a[0].s << ", "
-            << a[1].s << std::endl;
-
   // Verify the original path name exists, and is not a directory:
   uint originalFile = findFile((char *)a[0].s);
   if (originalFile == 0)
   {
     printf("%s does not exist.\n", (char *)a[0].s);
+    return;
+  }
+  if (fv->inodes.getType(originalFile) == 2)
+  {
+    // Note: I'm assuming we don't want hard links to soft link files.
+    printf("%s is a directory.\n", (char *)a[0].s);
     return;
   }
   if (fv->inodes.getType(originalFile) != 1)
@@ -735,7 +732,6 @@ void doLnHard(Arg *a)
   }
 
   // Verify the new path name does not exist, and is valid:
-  std::cout << "  Find file arguments: " << a[1].s << std::endl;
   uint newFilePath = findFile((char *)a[1].s);
   if (newFilePath > 0)
   {
@@ -744,7 +740,6 @@ void doLnHard(Arg *a)
   }
 
   // Verify that the destination path points to a valid directory:
-  std::cout << "  Find file path arguments: " << a[1].s << std::endl;
   uint newParentDir = findFilePath((char *)a[1].s);
   if (newParentDir == 0)
   {
@@ -753,9 +748,7 @@ void doLnHard(Arg *a)
   }
 
   // Verify that the destination path points to a valid file name:
-  std::cout << "  Find file name arguments: " << a[1].s << std::endl;
   char *destinationFileName = findFileName((char *)a[1].s);
-  std::cout << "  Returned file name: " << destinationFileName << std::endl;
   if (destinationFileName == NULL)
   {
     printf("%s\n", "Invalid destination file name.");
