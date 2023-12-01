@@ -7,4 +7,6 @@ mkdir testDir
 ln /smallFile.txt /testDir/hardLink2/
 ln /smallFile.txt /testDir/hardLink2
 ls /testDir/
+ln /testDir/ /linkedDir/
+ls
 quit
