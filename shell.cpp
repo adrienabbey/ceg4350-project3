@@ -711,16 +711,17 @@ void doMv(Arg *a)
 /// name.
 void doLnHard(Arg *a)
 {
-  // Verify the original path name exists, and is not a directory:
+  // Verify the original path name exists:
   uint originalFile = findFile((char *)a[0].s);
   if (originalFile == 0)
   {
     printf("%s does not exist.\n", (char *)a[0].s);
     return;
   }
+
+  // Verify the original path name is not a directory:
   if (fv->inodes.getType(originalFile) == 2)
   {
-    // Note: I'm assuming we don't want hard links to soft link files.
     printf("%s is a directory.\n", (char *)a[0].s);
     return;
   }
@@ -731,8 +732,34 @@ void doLnHard(Arg *a)
   uint newFilePath = findFile((char *)a[1].s);
   if (newFilePath > 0)
   {
-    printf("%s already exists.\n", (char *)a[1].s);
-    return;
+    // If the destination is the current directory:
+    if (findFile((char *)a[1].s) == wd->nInode)
+    {
+      // The destination directory is the current working directory:
+      char *destinationFileName = findFileName((char *)a[0].s);
+      wd->addLeafName((byte *)destinationFileName, originalFile);
+      fv->inodes.setLinks(originalFile, fv->inodes.getLinks(originalFile) + 1);
+      printf("%s now has %d links.\n", (char *)a[0].s, fv->inodes.getLinks(originalFile));
+      return;
+    }
+    else
+    {
+      // If the destination argument is ommited:
+      if (strlen(a[1].s) == 0)
+      {
+        // Assume the user wants to link the given file to the current directory:
+        char *destinationFileName = findFileName((char *)a[0].s);
+        wd->addLeafName((byte *)destinationFileName, originalFile);
+        fv->inodes.setLinks(originalFile, fv->inodes.getLinks(originalFile) + 1);
+        printf("%s now has %d links.\n", (char *)a[0].s, fv->inodes.getLinks(originalFile));
+        return;
+      }
+      else
+      {
+        printf("%s already exists.\n", (char *)a[1].s);
+        return;
+      }
+    }
   }
 
   // Verify that the destination path points to a valid directory:
@@ -802,6 +829,7 @@ public:
     {"inode", "u", "v", doInode},
     {"inode", "s", "v", doInodeStr},
     {"ln", "ss", "v", doLnHard}, // Hard links require two path names
+    {"ln", "s", "v", doLnHard},  // Hard link bonus
     {"ls", "", "v", doLsLong},
     {"ls", "s", "v", doLsLong}, // Allow ls to specify a path
     {"lslong", "", "v", doLsLong},
