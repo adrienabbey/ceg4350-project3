@@ -25,6 +25,7 @@ mv hardLink1 hardLink3
 ls
 inode hardLink3
 rm hardLink3
+ls
 inode hardLink2
 cp hardLink2 hardLink1
 inode hardLink1
