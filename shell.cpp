@@ -880,7 +880,7 @@ void doLnSoft(Arg *a)
     File *newFile = new File(fv, newFileInode);
 
     // Write the original path name to the soft link file:
-    uint writeResult = newFile->writeBlock(1, a[1].s);
+    uint writeResult = newFile->appendBytes((byte *)a[1].s, strlen((char *)a[1].s));
 
     if (writeResult == 0)
     {
