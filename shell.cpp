@@ -785,6 +785,55 @@ void doLnHard(Arg *a)
   printf("%s now has %d links.\n", (char *)a[0].s, fv->inodes.getLinks(originalFile));
 }
 
+/// @brief Creates a soft link from the given file or directory to the given
+/// path name.  Soft links are a unique file type that contain the path name
+/// they link to.  This will fail if:
+/// the original path name does not exist,
+/// the new path name already exists,
+/// or the new path name is invalid.
+/// This will also fail if the first argument is not '-s'.
+/// @param a Must have three valid arguments:
+/// the first must be '-s' to denote a soft link,
+/// the second is the original path name of the file or folder being soft linked,
+/// and the third is the new path name that the soft link will have.
+void doLnSoft(Arg *a)
+{
+  // Verify the first argument is '-s':
+  if (!strcmp(a[0].s, "-s"))
+  {
+    // Invalid arguments.  Complain loudly:
+    printf("%s\n", "Invalid arguments.");
+    return;
+  }
+
+  // Validate the original path name is valid:
+  uint originalFile = findFile((char *)a[1].s);
+  if (originalFile == 0)
+  {
+    // Invalid original path name.  Complain loudly:
+    printf("%s\n", "Invalid original path name.");
+    return;
+  }
+
+  // Validate that the destination does not exist:
+  uint destinationFile = findFile((char *)a[2].s);
+  if (destinationFile > 0)
+  {
+    // Destination alread exists.  Complain loudly:
+    printf("%s\n", "Destination already exists.");
+    return;
+  }
+
+  // Validate the destination path is valid:
+  uint destinationPath = findFilePath((char *)a[2].s);
+  if (destinationPath == 0)
+  {
+    // The destination directory does not exist.  Complain loudly:
+    printf("%s\n", "Destination directory does not exist.");
+    return;
+  }
+}
+
 /*
  *End of new functions for Project 3.
  */
@@ -830,6 +879,7 @@ public:
     {"inode", "s", "v", doInodeStr},
     {"ln", "ss", "v", doLnHard}, // Hard links require two path names
     {"ln", "s", "v", doLnHard},  // Hard link bonus
+    {"ln", "sss", "", doLnSoft}, // Soft links require a flag and two path names
     {"ls", "", "v", doLsLong},
     {"ls", "s", "v", doLsLong}, // Allow ls to specify a path
     {"lslong", "", "v", doLsLong},
