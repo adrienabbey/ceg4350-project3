@@ -821,7 +821,7 @@ void doLnHard(Arg *a)
 void doLnSoft(Arg *a)
 {
   // Verify the first argument is '-s':
-  if (!strcmp(a[0].s, "-s"))
+  if (strcmp(a[0].s, "-s"))
   {
     // Invalid arguments.  Complain loudly:
     printf("%s\n", "Invalid arguments.");
