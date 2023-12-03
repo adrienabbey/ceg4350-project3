@@ -385,6 +385,28 @@ char *findFileName(char *path)
   }
 }
 
+/// @brief Parses a path name and returns the file or directory at the end of
+/// the path.  This does not validate whether the path name is valid.
+/// @param path The path name to parse.
+/// @return Returns the name of the file or directory at the end of the path.
+char *findFileNameDirectory(char *path)
+{
+  // Deep copy the path string:
+  char pathStr[BUFSIZ];
+  strcpy(pathStr, path);
+
+  // Find the file name:
+  std::string fileName;
+  char *pathPart = strtok(pathStr, "/");
+  while (pathPart != NULL)
+  {
+    fileName = pathPart;
+    pathPart = strtok(NULL, "/");
+  }
+  char *returnStr = (char *)fileName.c_str();
+  return returnStr;
+}
+
 /// @brief Print a listing of the current local directory's contents, much like
 /// `ls -lisa` would.
 /// @param a Arguments, if any.  These are likely ignored.
@@ -486,7 +508,7 @@ void doRm(Arg *a)
       // Delete the file reference without freeing the inode:
       fv->inodes.setLinks(delInode, delLinks - 1);
       uint in = wd->deleteFile((byte *)a[0].s, 0);
-      printf("The file has %d hard links remaining.\n", fv->inodes.getLinks(wd->iNumberOf((byte *)a[0].s)));
+      printf("The file has %d hard links remaining.\n", delLinks - 1);
       printf("rm %s returns %d.\n", a[0].s, in);
       return;
     }
@@ -806,7 +828,7 @@ void doLnSoft(Arg *a)
     return;
   }
 
-  // Validate the original path name is valid:
+  // Validate that the original path name is valid:
   uint originalFile = findFile((char *)a[1].s);
   if (originalFile == 0)
   {
@@ -824,12 +846,53 @@ void doLnSoft(Arg *a)
     return;
   }
 
-  // Validate the destination path is valid:
-  uint destinationPath = findFilePath((char *)a[2].s);
-  if (destinationPath == 0)
+  // Validate that destination directory is valid:
+  uint destinationDirectoryInode = findFilePath((char *)a[2].s);
+  if (destinationDirectoryInode == 0)
   {
     // The destination directory does not exist.  Complain loudly:
     printf("%s\n", "Destination directory does not exist.");
+    return;
+  }
+
+  // Validation checks complete.  Create the new soft link file.
+  // Note: For simplicity sake, I'm going to keep all the new code here.
+  // I could have modified the Directory's createFile method, but I'd rather
+  // keep as much modified code in this file.
+
+  // Get a free inode for the new file:
+  uint newFileInode = fv->inodes.getFree();
+  if (newFileInode > 0)
+  {
+    // Get the destination file name.
+    char *destinationFileName = findFileNameDirectory((char *)a[2].s);
+
+    // Create the destination Directory object:
+    Directory *destinationDirectory = new Directory(fv, destinationDirectoryInode, 1);
+
+    // Create a new file for the soft link:
+    destinationDirectory->addLeafName((byte *)destinationFileName, newFileInode);
+
+    // Set the new file type to soft link:
+    fv->inodes.setType(newFileInode, iTypeSoftLink);
+
+    // Create a File object to modify the new file:
+    File *newFile = new File(fv, newFileInode);
+
+    // Write the original path name to the soft link file:
+    uint writeResult = newFile->writeBlock(1, a[1].s);
+
+    if (writeResult == 0)
+    {
+      // Write failed.
+      printf("%s\n", "ERROR: Failed to write to file!");
+      return;
+    }
+  }
+  else
+  {
+    // Failed to create a new file.
+    printf("%s\n", "Failed to create a new file.");
     return;
   }
 }
