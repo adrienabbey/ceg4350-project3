@@ -623,8 +623,8 @@ void doChDir(Arg *a)
     // And the content of that soft link is a directory:
     File *softLinkSource = new File(fv, pathInode);
     byte *sourcePath[BUFSIZ];
-    softLinkSource->readBlock(1, sourcePath);
-    std::cout << "  Read content was: " << (char *)softLinkSource << std::endl;
+    softLinkSource->readBlock(0, &sourcePath);
+    std::cout << "  Read content was: " << (char *)sourcePath << std::endl;
     return;
   }
 
