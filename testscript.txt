@@ -32,8 +32,11 @@ inode hardLink1
 ln -s /testDir/ softLink1
 ls
 inode softLink1
-ln -s /testDir/hardLink2 /testDir/softLink2
+ln -s /testDir/hardLink2/ /testDir/softLink2/
 ls /testDir/
 ln -s fakeFile shouldFail
-cd softLink1
+mkdir testDir2
+cd testDir2
+cd /testDir/softLink2/
+ls
 quit
