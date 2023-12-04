@@ -617,15 +617,29 @@ void doChDir(Arg *a)
   char *pathArg = a[0].s;
   uint pathInode = findFile(pathArg);
 
-  // If the given path is a soft link to a directory:
-  if (fv->inodes.getType(pathInode) == 3)
+  // If the given path is a soft link file:
+  if (pathInode > 0 && fv->inodes.getType(pathInode) == iTypeSoftLink)
   {
-    // And the content of that soft link is a directory:
+    // Grab the path from the soft link file
     File *softLinkSource = new File(fv, pathInode);
     byte *sourcePath[BUFSIZ];
     softLinkSource->readBlock(0, &sourcePath);
-    std::cout << "  Read content was: " << (char *)sourcePath << std::endl;
-    return;
+    std::cout << "  Source path: " << (char *)sourcePath << ", byte size: " << strlen((char *)sourcePath) << std::endl;
+
+    // If the soft link path exists and is a directory:
+    uint softLinkDestination = findFile((char *)sourcePath);
+    if (softLinkDestination > 0 && fv->inodes.getType(softLinkDestination) == iTypeDirectory)
+    {
+      // Switch to that directory:
+      wd = new Directory(fv, softLinkDestination, wd->nInode);
+      return;
+    }
+    else
+    {
+      // Invalid soft link destination.  Complain loudly:
+      printf("%s\n", "Invalid destination directory.");
+      return;
+    }
   }
 
   // If the path exists and is a directory:
@@ -898,6 +912,7 @@ void doLnSoft(Arg *a)
 
     // Write the original path name to the soft link file:
     uint writeResult = newFile->appendBytes((byte *)a[1].s, strlen((char *)a[1].s));
+    std::cout << "  Path being written: " << (byte *)a[1].s << ", byte size: " << strlen((char *)a[1].s) << std::endl;
 
     if (writeResult == 0)
     {
