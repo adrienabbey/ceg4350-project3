@@ -599,6 +599,12 @@ std::string getPwdString(Directory *dir)
   }
 }
 
+// TODO: Update cd:
+// cd should work with soft links.  If the target soft link points to a
+// directory, it should read the path from the file and change to that
+// directory.  Additionally, it should adjust the parent directory pointer
+// to instead return to the directory that the soft link exists in.
+
 /// @brief Change the current directory to the given directory or path.  If
 /// the argument begins with a slash, it's an absolute name.  If it does not,
 /// it's relative to the current working directory.  In either case, print the
@@ -610,6 +616,17 @@ void doChDir(Arg *a)
   // Find the path given:
   char *pathArg = a[0].s;
   uint pathInode = findFile(pathArg);
+
+  // If the given path is a soft link to a directory:
+  if (fv->inodes.getType(pathInode) == 3)
+  {
+    // And the content of that soft link is a directory:
+    File *softLinkSource = new File(fv, pathInode);
+    byte *sourcePath[BUFSIZ];
+    softLinkSource->readBlock(1, sourcePath);
+    std::cout << "  Read content was: " << (char *)softLinkSource << std::endl;
+    return;
+  }
 
   // If the path exists and is a directory:
   if (pathInode > 0 && fv->inodes.getType(pathInode) == 2)
