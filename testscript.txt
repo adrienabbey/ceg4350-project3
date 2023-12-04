@@ -29,7 +29,7 @@ ls
 inode hardLink2
 cp hardLink2 hardLink1
 inode hardLink1
-ln -s hardLink1 softLink1
+ln -s /testDir/ softLink1
 ls
 inode softLink1
 ln -s /testDir/hardLink2 /testDir/softLink2
