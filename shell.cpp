@@ -911,7 +911,7 @@ void doLnSoft(Arg *a)
     File *newFile = new File(fv, newFileInode);
 
     // Write the original path name to the soft link file:
-    uint writeResult = newFile->appendBytes((byte *)a[1].s, strlen((char *)a[1].s));
+    uint writeResult = newFile->appendBytes((byte *)a[1].s, strlen((char *)a[1].s) + 1);
     std::cout << "  Path being written: " << (byte *)a[1].s << ", byte size: " << strlen((char *)a[1].s) << std::endl;
 
     if (writeResult == 0)
