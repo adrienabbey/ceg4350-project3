@@ -624,7 +624,6 @@ void doChDir(Arg *a)
     File *softLinkSource = new File(fv, pathInode);
     byte *sourcePath[BUFSIZ];
     softLinkSource->readBlock(0, &sourcePath);
-    std::cout << "  Source path: " << (char *)sourcePath << ", byte size: " << strlen((char *)sourcePath) << std::endl;
 
     // If the soft link path exists and is a directory:
     uint softLinkDestination = findFile((char *)sourcePath);
@@ -912,7 +911,6 @@ void doLnSoft(Arg *a)
 
     // Write the original path name to the soft link file:
     uint writeResult = newFile->appendBytes((byte *)a[1].s, strlen((char *)a[1].s) + 1);
-    std::cout << "  Path being written: " << (byte *)a[1].s << ", byte size: " << strlen((char *)a[1].s) << std::endl;
 
     if (writeResult == 0)
     {
