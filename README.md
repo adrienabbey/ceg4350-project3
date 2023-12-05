@@ -36,8 +36,8 @@ Implement the commands described below.  This builds upon how commands worked be
     - Removes the path `pnm`, which may or may not be a link, and prints the resulting link count.
 
 ## Grading Rubric
-- [ ] `testscript.txt` is designed to demonstrate and test all the functionality of the new links and medium sized files (5 pts)
-- [ ] `testscript.txt` successfully navigates as expected (5 pts)
+- [?] `testscript.txt` is designed to demonstrate and test all the functionality of the new links and medium sized files (5 pts)
+- [x] `testscript.txt` successfully navigates as expected (5 pts)
 - [x] `ln opnm npnm` (5 pts)
 - [x] `ln -s opnm npnm` (10 pts)
 - [x] `cd link-to-dir` (10 pts)
@@ -45,7 +45,7 @@ Implement the commands described below.  This builds upon how commands worked be
 - [x] `cp hard-link-pnm pnm` (5 pts)
 - [ ] `cp soft-link-pnm pnm` (10 pts)
 - [x] `rm hard-or-soft-link-pnm` (10 pts)
-- [ ] `mv soft-link-pnm pnm` (10 pts)
+- [x] `mv soft-link-pnm pnm` (10 pts)
 - [x] `mv hard-link-pnm pnm` (5 pts)
 - [x] `inode` updated to show all inode fields (10 pts)
 - [ ] Medium files implemented (10 pts)
