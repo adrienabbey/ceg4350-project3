@@ -36,7 +36,7 @@ Implement the commands described below.  This builds upon how commands worked be
     - Removes the path `pnm`, which may or may not be a link, and prints the resulting link count.
 
 ## Grading Rubric
-- [?] `testscript.txt` is designed to demonstrate and test all the functionality of the new links and medium sized files (5 pts)
+- [-] `testscript.txt` is designed to demonstrate and test all the functionality of the new links and medium sized files (5 pts)
 - [x] `testscript.txt` successfully navigates as expected (5 pts)
 - [x] `ln opnm npnm` (5 pts)
 - [x] `ln -s opnm npnm` (10 pts)
