@@ -39,4 +39,10 @@ mkdir testDir2
 cd testDir2
 cd /softLink1/
 ls
+cd /
+ls
+mv softLink1 softLinkCP
+ls
+cd softLinkCP
+ls
 quit
