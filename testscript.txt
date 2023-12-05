@@ -37,6 +37,6 @@ ls /testDir/
 ln -s fakeFile shouldFail
 mkdir testDir2
 cd testDir2
-cd /testDir/softLink2/
+cd /softLink1/
 ls
 quit
